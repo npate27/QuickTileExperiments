@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.neel_h_patel0596.quickTileSuite">
+    
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name="com.neel_h_patel0596.quickTileSuite.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="com.neel_h_patel0596.quickTileSuite.Reverse_Portrait.ReversePortraitQuickTile"
+            android:icon="@drawable/ic_screen_lock_portrait_black_24dp"
+            android:label="@string/rev_portrait_tile_label"
+            android:exported="true"
+            android:value="false"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.neel_h_patel0596.quickTileSuite.Reverse_Portrait.ChargingDetectService" />
+
+
+        <service
+        android:name="com.neel_h_patel0596.quickTileSuite.Go_Dark.ScreenBlackAmoled"
+        android:icon="@drawable/ic_brightness_1_black_24dp"
+        android:label="@string/screen_black_tile_label"
+        android:exported="true"
+        android:value="false"
+        android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+        <intent-filter>
+            <action android:name="android.service.quicksettings.action.QS_TILE" />
+        </intent-filter>
+        </service>
+
+        <service
+            android:name="com.neel_h_patel0596.quickTileSuite.SleepTile.SleepTile"
+            android:icon="@drawable/ic_access_time_black_24dp"
+            android:label="@string/sleep_tile_label"
+            android:exported="true"
+            android:value="false"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

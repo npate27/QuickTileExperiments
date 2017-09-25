@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Quick Tile Suite</string>
+    <string name="rev_portrait_tile_label">Reverse Portrait Toggle</string>
+    <string name="screen_black_tile_label">Go Dark</string>
+    <string name="service_active">On</string>
+    <string name="service_inactive">Off</string>
+    <string name="sleep_tile_label">Screen Off Timer</string>
+</resources>
