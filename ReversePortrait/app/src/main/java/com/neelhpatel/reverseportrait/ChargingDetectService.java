@@ -34,7 +34,6 @@ public class ChargingDetectService extends Service {
             isTurned = true;
         }
         registerReceiver(receiver, filter);
-        Log.d("TAG1", "OnStartCommand, receiver registered");
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -45,7 +44,6 @@ public class ChargingDetectService extends Service {
             isTurned = false;
         }
         unregisterReceiver(receiver);
-        Log.d("TAG1", "OnDestory, receiver unregistered");
         Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_0);
         super.onDestroy();
     }
