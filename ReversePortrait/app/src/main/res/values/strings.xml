@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ReversePortrait</string>
+    <string name="rev_portrait_tile_label">Reverse Portrait Toggle</string>
+</resources>

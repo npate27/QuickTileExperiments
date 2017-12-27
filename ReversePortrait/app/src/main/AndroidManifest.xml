@@ -1,0 +1,29 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.neelhpatel.reverseportrait">
+
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme" >
+
+            <service
+                android:name="com.neelhpatel.reverseportrait.ReversePortraitQuickTile"
+                android:icon="@drawable/ic_screen_lock_portrait_black_24dp"
+                android:label="@string/rev_portrait_tile_label"
+                android:exported="true"
+                android:value="false"
+                android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+                <intent-filter>
+                    <action android:name="android.service.quicksettings.action.QS_TILE" />
+                </intent-filter>
+            </service>
+
+        <service android:name="com.neelhpatel.reverseportrait.ChargingDetectService" />
+
+    </application>
+</manifest>
