@@ -8,7 +8,7 @@ import android.service.quicksettings.TileService;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class ScreenBlack extends TileService {
+public class GoDarkQuickTile extends TileService {
     @Override
     public void onCreate() {
         super.onCreate();

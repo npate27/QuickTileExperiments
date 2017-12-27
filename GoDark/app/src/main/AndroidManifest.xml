@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme" >
 
         <service
-            android:name="com.neelhpatel.godark.ScreenBlack"
+            android:name="com.neelhpatel.godark.GoDarkQuickTile"
             android:icon="@drawable/ic_brightness_1_black_24dp"
             android:label="@string/screen_black_tile_label"
             android:exported="true"
