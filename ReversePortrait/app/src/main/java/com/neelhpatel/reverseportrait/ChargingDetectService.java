@@ -8,11 +8,14 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.util.Log;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 
+
 public class ChargingDetectService extends Service {
-    boolean isActive;
+
+    boolean isTurned;
 
     @Nullable
     @Override
@@ -22,15 +25,16 @@ public class ChargingDetectService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        isActive = false;
+        isTurned = false;
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_POWER_CONNECTED);
         filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
         if(isCharging()){
             Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_180);
-            isActive = true;
+            isTurned = true;
         }
         registerReceiver(receiver, filter);
+        Log.d("TAG1", "OnStartCommand, receiver registered");
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -38,9 +42,10 @@ public class ChargingDetectService extends Service {
     public void onDestroy() {
         if(isCharging()){
             Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_0);
-            isActive = false;
+            isTurned = false;
         }
         unregisterReceiver(receiver);
+        Log.d("TAG1", "OnDestory, receiver unregistered");
         Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_0);
         super.onDestroy();
     }
@@ -48,12 +53,12 @@ public class ChargingDetectService extends Service {
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(!isActive){
+            if(!isTurned){
                 Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_180);
             } else {
                 Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_0);
             }
-            isActive = !isActive;
+            isTurned = !isTurned;
         }
     };
 

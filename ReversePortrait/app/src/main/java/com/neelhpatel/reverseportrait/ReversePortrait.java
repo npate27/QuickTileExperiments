@@ -8,7 +8,7 @@ import android.service.quicksettings.TileService;
 import android.widget.Toast;
 
 
-public class ReversePortraitQuickTile extends TileService {
+public class ReversePortrait extends TileService {
     private boolean canWrite;
 
     @Override
