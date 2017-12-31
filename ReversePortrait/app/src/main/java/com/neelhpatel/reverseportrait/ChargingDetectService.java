@@ -29,7 +29,7 @@ public class ChargingDetectService extends Service {
         filter.addAction(Intent.ACTION_POWER_CONNECTED);
         filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
         if(isCharging()){
-            Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_180);
+            changeOrientation(Surface.ROTATION_180);
             isTurned = true;
         }
         registerReceiver(receiver, filter);
@@ -39,11 +39,11 @@ public class ChargingDetectService extends Service {
     @Override
     public void onDestroy() {
         if(isCharging()){
-            Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_0);
+            changeOrientation(Surface.ROTATION_0);
             isTurned = false;
         }
         unregisterReceiver(receiver);
-        Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_0);
+        changeOrientation(Surface.ROTATION_0);
         super.onDestroy();
     }
 
@@ -51,9 +51,9 @@ public class ChargingDetectService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(!isTurned){
-                Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_180);
+                changeOrientation(Surface.ROTATION_180);
             } else {
-                Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_0);
+                changeOrientation(Surface.ROTATION_0);
             }
             isTurned = !isTurned;
         }
@@ -65,5 +65,9 @@ public class ChargingDetectService extends Service {
         int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         return (status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL);
+    }
+
+    public void changeOrientation(int orientation){
+        Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, orientation);
     }
 }

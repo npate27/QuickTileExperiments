@@ -1,20 +1,30 @@
 package com.neelhpatel.reverseportrait;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import android.view.Surface;
 import android.widget.Toast;
 
 
 public class ReversePortrait extends TileService {
     private boolean canWrite;
+    private boolean isManualMode;
+    private boolean isOnBoot;
 
     @Override
     public void onCreate() {
         super.onCreate();
         canWrite = (getQsTile() != null && getQsTile().getState() == Tile.STATE_ACTIVE);
+    }
+
+    @Override
+    public void onStartListening() {
+        readPreferences();
     }
 
     @Override
@@ -27,7 +37,9 @@ public class ReversePortrait extends TileService {
         Tile tile = getQsTile();
         if (!canWrite) {
             checkWritePermission();
-        } else {
+        } else if (isManualMode){
+            switchOrientation();
+        } else{
             Intent intent = new Intent(this, ChargingDetectService.class);
             switch(tile.getState()){
                 case Tile.STATE_INACTIVE:
@@ -39,8 +51,9 @@ public class ReversePortrait extends TileService {
                 default:
                     break;
             }
-            updateTile();
         }
+        updateTile();
+
     }
 
     private void updateTile() {
@@ -68,5 +81,22 @@ public class ReversePortrait extends TileService {
         super.onDestroy();
     }
 
+    private void readPreferences() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String KEY_PREF_MANUAL_MODE = getResources().getString(R.string.manual_mode_key);
+        String KEY_PREF_ON_BOOT = getResources().getString(R.string.on_boot_key);
+        isManualMode = prefs.getBoolean(KEY_PREF_MANUAL_MODE, false);
+        isOnBoot = prefs.getBoolean(KEY_PREF_ON_BOOT, false);
+    }
+
+    public void switchOrientation(){
+        try {
+            int rotation = Settings.System.getInt(getContentResolver(), Settings.System.USER_ROTATION);
+            int reverseRotation = (rotation == Surface.ROTATION_0) ? Surface.ROTATION_180 : Surface.ROTATION_0;
+            Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, reverseRotation);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
