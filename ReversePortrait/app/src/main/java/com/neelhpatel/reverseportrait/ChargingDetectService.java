@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.util.Log;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 

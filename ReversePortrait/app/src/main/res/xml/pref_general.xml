@@ -1,0 +1,15 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/manual_mode_key"
+        android:summary="@string/manual_mode_summary"
+        android:title="@string/manual_mode_title" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/on_boot_key"
+        android:summary="@string/on_boot_summary"
+        android:title="@string/on_boot_title" />
+
+</PreferenceScreen>
