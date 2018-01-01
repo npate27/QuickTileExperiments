@@ -14,7 +14,6 @@ import android.widget.Toast;
 public class ReversePortrait extends TileService {
     private boolean canWrite;
     private boolean isManualMode;
-    private boolean isOnBoot;
 
     @Override
     public void onCreate() {
@@ -84,9 +83,7 @@ public class ReversePortrait extends TileService {
     private void readPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String KEY_PREF_MANUAL_MODE = getResources().getString(R.string.manual_mode_key);
-        String KEY_PREF_ON_BOOT = getResources().getString(R.string.on_boot_key);
         isManualMode = prefs.getBoolean(KEY_PREF_MANUAL_MODE, false);
-        isOnBoot = prefs.getBoolean(KEY_PREF_ON_BOOT, false);
     }
 
     public void switchOrientation(){
