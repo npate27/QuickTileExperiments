@@ -14,6 +14,7 @@ import android.widget.Toast;
 public class ReversePortraitTileService extends TileService {
     private boolean canWrite;
     private boolean isManualMode;
+    private boolean firstInstance = true;
 
     @Override
     public void onCreate() {
@@ -23,7 +24,21 @@ public class ReversePortraitTileService extends TileService {
 
     @Override
     public void onStartListening() {
+        if(firstInstance){
+            updateTile(Tile.STATE_INACTIVE);
+        } else {
+            firstInstance = false;
+        }
         readPreferences();
+        if(isManualMode){
+            try {
+                int rotation = Settings.System.getInt(getContentResolver(), Settings.System.USER_ROTATION);
+                int state = (rotation == Surface.ROTATION_0) ? Tile.STATE_INACTIVE : Tile.STATE_ACTIVE;
+                updateTile(state);
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -54,6 +69,13 @@ public class ReversePortraitTileService extends TileService {
         updateTile();
 
     }
+
+    private void updateTile(int state) {
+        Tile tile = super.getQsTile();
+        tile.setState(state);
+        tile.updateTile();
+    }
+
 
     private void updateTile() {
         Tile tile = super.getQsTile();
