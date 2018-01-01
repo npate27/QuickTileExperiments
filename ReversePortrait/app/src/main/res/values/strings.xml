@@ -10,5 +10,7 @@
     <string name="on_boot_summary">Automatically start service on boot</string>
     <string name="on_boot_key">on_boot_switch</string>
     <string name="manual_mode_key">manual_mode_switch</string>
+    <string name="uninstall_title">Uninstall</string>
+    <string name="uninstall_key">uninstall_button</string>
 
 </resources>

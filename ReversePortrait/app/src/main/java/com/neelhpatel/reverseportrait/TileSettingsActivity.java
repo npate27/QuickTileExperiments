@@ -1,6 +1,8 @@
 package com.neelhpatel.reverseportrait;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -25,6 +27,7 @@ public class TileSettingsActivity extends PreferenceActivity {
     public static class TilePreferenceFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener {
         public String KEY_PREF_MANUAL_MODE;
         public String KEY_PREF_ON_BOOT;
+        public String KEY_PREF_UNINSTALL;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,7 @@ public class TileSettingsActivity extends PreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             KEY_PREF_MANUAL_MODE = this.getResources().getString(R.string.manual_mode_key);
             KEY_PREF_ON_BOOT = this.getResources().getString(R.string.on_boot_key);
+            KEY_PREF_UNINSTALL = getResources().getString(R.string.uninstall_key);
         }
 
         @Override
@@ -39,12 +43,23 @@ public class TileSettingsActivity extends PreferenceActivity {
             View view = super.onCreateView(inflater, container, savedInstanceState);
             SwitchPreference manualModePreference = (SwitchPreference) findPreference(KEY_PREF_MANUAL_MODE);
             SwitchPreference onBootPreference = (SwitchPreference) findPreference(KEY_PREF_ON_BOOT);
+            Preference uninstallPreference = findPreference(KEY_PREF_UNINSTALL);
+
             if(manualModePreference.isChecked()){
                 onBootPreference.setEnabled(false);
                 onBootPreference.setChecked(false);
             }
             manualModePreference.setOnPreferenceChangeListener(this);
             onBootPreference.setOnPreferenceChangeListener(this);
+            uninstallPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Uri packageURI = Uri.parse("package:com.neelhpatel.reverseportrait");
+                    Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
+                    startActivity(uninstallIntent);
+                    return true;
+                }
+            });
             return view;
         }
 
