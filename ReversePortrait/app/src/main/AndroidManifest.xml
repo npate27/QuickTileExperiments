@@ -33,12 +33,11 @@
         </receiver>
 
         <service
-            android:name=".ReversePortrait"
+            android:name=".ReversePortraitTileService"
             android:exported="true"
             android:icon="@drawable/ic_screen_lock_portrait_black_24dp"
             android:label="@string/rev_portrait_tile_label"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            android:value="false">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>

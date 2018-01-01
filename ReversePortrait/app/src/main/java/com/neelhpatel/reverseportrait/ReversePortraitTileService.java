@@ -11,7 +11,7 @@ import android.view.Surface;
 import android.widget.Toast;
 
 
-public class ReversePortrait extends TileService {
+public class ReversePortraitTileService extends TileService {
     private boolean canWrite;
     private boolean isManualMode;
 
