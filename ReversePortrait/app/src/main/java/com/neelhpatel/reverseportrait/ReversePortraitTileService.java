@@ -2,6 +2,7 @@ package com.neelhpatel.reverseportrait;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -15,11 +16,12 @@ public class ReversePortraitTileService extends TileService {
     private boolean canWrite;
     private boolean isManualMode;
     private boolean firstInstance = true;
-
+    private Icon manualIcon;
     @Override
     public void onCreate() {
         super.onCreate();
         canWrite = (getQsTile() != null && getQsTile().getState() == Tile.STATE_ACTIVE);
+        manualIcon = Icon.createWithResource(this, R.drawable.ic_manual_logo);
     }
 
     @Override
@@ -38,6 +40,8 @@ public class ReversePortraitTileService extends TileService {
             } catch (Settings.SettingNotFoundException e) {
                 e.printStackTrace();
             }
+        } else {
+            updateTileManual();
         }
     }
 
@@ -76,10 +80,21 @@ public class ReversePortraitTileService extends TileService {
         tile.updateTile();
     }
 
+    private void updateTileManual() {
+        Tile tile = super.getQsTile();
+        tile.setIcon(manualIcon);
+        tile.updateTile();
+    }
+
 
     private void updateTile() {
         Tile tile = super.getQsTile();
         int newState = (tile.getState()==Tile.STATE_ACTIVE) ? Tile.STATE_INACTIVE : Tile.STATE_ACTIVE;
+        if(!isManualMode) {
+            int resId = (newState == Tile.STATE_INACTIVE) ? R.drawable.ic_charge_reverse_portrait : R.drawable.ic_charge_portrait;
+            Icon icon = Icon.createWithResource(this, resId);
+            tile.setIcon(icon);
+        }
         tile.setState(newState);
         tile.updateTile();
     }
