@@ -6,6 +6,10 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.quicksettings.Tile;
@@ -19,6 +23,7 @@ public class ReversePortraitTileService extends TileService {
     private boolean isManualMode;
     private Icon manualIcon;
     private static ChargingStatusReceiver chargingStatusReceiver;
+    private Handler handler;
 
     @Override
     public void onCreate() {
@@ -61,16 +66,24 @@ public class ReversePortraitTileService extends TileService {
                     if(isCharging()){
                         setOrientation(Surface.ROTATION_180);
                     }
-                    IntentFilter filter = new IntentFilter();
-                    filter.addAction(Intent.ACTION_POWER_CONNECTED);
-                    filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
-                    chargingStatusReceiver = new ChargingStatusReceiver();
-                    registerReceiver(chargingStatusReceiver, filter);
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        IntentFilter filter = new IntentFilter();
+                        filter.addAction(Intent.ACTION_POWER_CONNECTED);
+                        filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+                        chargingStatusReceiver = new ChargingStatusReceiver();
+                        HandlerThread handlerThread = new HandlerThread("ChargingDetectThread");
+                        handlerThread.start();
+                        Looper looper = handlerThread.getLooper();
+                        handler = new Handler(looper);
+                        registerReceiver (chargingStatusReceiver, filter, null, handler);
+                    }
                     tile.setState(Tile.STATE_ACTIVE);
                     tile.setIcon(Icon.createWithResource(this, R.drawable.ic_charge_reverse_portrait));
                     break;
                 case Tile.STATE_ACTIVE:
-                    unregisterReceiver(chargingStatusReceiver);
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        unregisterReceiver(chargingStatusReceiver);
+                    }
                     setOrientation(Surface.ROTATION_0);
                     tile.setState(Tile.STATE_INACTIVE);
                     tile.setIcon(Icon.createWithResource(this, R.drawable.ic_charge_portrait));
@@ -111,7 +124,6 @@ public class ReversePortraitTileService extends TileService {
     private void checkWritePermission(){
         if(canWrite || Settings.System.canWrite(this)) {
             canWrite = true;
-            onClick();
         } else {
             sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
             Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
