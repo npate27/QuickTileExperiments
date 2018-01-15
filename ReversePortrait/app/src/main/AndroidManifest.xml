@@ -44,7 +44,6 @@
             <meta-data android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="false" />
         </service>
-        <service android:name=".ChargingDetectService" />
 
     </application>
 

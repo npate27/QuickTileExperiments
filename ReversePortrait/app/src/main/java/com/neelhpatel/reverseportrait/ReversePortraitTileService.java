@@ -1,9 +1,11 @@
 package com.neelhpatel.reverseportrait;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.quicksettings.Tile;
@@ -15,8 +17,9 @@ import android.widget.Toast;
 public class ReversePortraitTileService extends TileService {
     private boolean canWrite;
     private boolean isManualMode;
-    private boolean firstInstance = true;
     private Icon manualIcon;
+    private static ChargingStatusReceiver chargingStatusReceiver;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -26,22 +29,17 @@ public class ReversePortraitTileService extends TileService {
 
     @Override
     public void onStartListening() {
-        if(firstInstance){
-            updateTile(Tile.STATE_INACTIVE);
-        } else {
-            firstInstance = false;
-        }
         readPreferences();
         if(isManualMode){
             try {
                 int rotation = Settings.System.getInt(getContentResolver(), Settings.System.USER_ROTATION);
                 int state = (rotation == Surface.ROTATION_0) ? Tile.STATE_INACTIVE : Tile.STATE_ACTIVE;
-                updateTile(state);
+                updateTileState(state);
             } catch (Settings.SettingNotFoundException e) {
                 e.printStackTrace();
             }
         } else {
-            updateTileManual();
+            updateTileManualIcon();
         }
     }
 
@@ -58,29 +56,40 @@ public class ReversePortraitTileService extends TileService {
         } else if (isManualMode){
             switchOrientation();
         } else{
-            Intent intent = new Intent(this, ChargingDetectService.class);
             switch(tile.getState()){
                 case Tile.STATE_INACTIVE:
-                    startService(intent);
+                    if(isCharging()){
+                        setOrientation(Surface.ROTATION_180);
+                    }
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction(Intent.ACTION_POWER_CONNECTED);
+                    filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+                    chargingStatusReceiver = new ChargingStatusReceiver();
+                    registerReceiver(chargingStatusReceiver, filter);
+                    tile.setState(Tile.STATE_ACTIVE);
+                    tile.setIcon(Icon.createWithResource(this, R.drawable.ic_charge_reverse_portrait));
                     break;
                 case Tile.STATE_ACTIVE:
-                    stopService(intent);
+                    unregisterReceiver(chargingStatusReceiver);
+                    setOrientation(Surface.ROTATION_0);
+                    tile.setState(Tile.STATE_INACTIVE);
+                    tile.setIcon(Icon.createWithResource(this, R.drawable.ic_charge_portrait));
                     break;
                 default:
                     break;
             }
         }
-        updateTile();
+        tile.updateTile();
 
     }
 
-    private void updateTile(int state) {
+    private void updateTileState(int state) {
         Tile tile = super.getQsTile();
         tile.setState(state);
         tile.updateTile();
     }
 
-    private void updateTileManual() {
+    private void updateTileManualIcon() {
         Tile tile = super.getQsTile();
         tile.setIcon(manualIcon);
         tile.updateTile();
@@ -131,6 +140,18 @@ public class ReversePortraitTileService extends TileService {
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setOrientation(int rotation){
+        Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, rotation);
+    }
+
+    public boolean isCharging(){
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = registerReceiver(null, ifilter);
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        return (status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL);
     }
 
 }
