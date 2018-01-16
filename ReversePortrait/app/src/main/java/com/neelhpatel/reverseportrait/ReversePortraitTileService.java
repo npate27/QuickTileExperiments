@@ -34,12 +34,12 @@ public class ReversePortraitTileService extends TileService {
         readPreferences();
         if(isManualMode){
             try {
+                int state = Tile.STATE_INACTIVE;
                 int rotation = Settings.System.getInt(getContentResolver(), Settings.System.USER_ROTATION);
-                int state = (rotation == Surface.ROTATION_0) ? Tile.STATE_INACTIVE : Tile.STATE_ACTIVE;
-                Tile tile = getQsTile();
-                tile.setState(state);
-                tile.setIcon(createIcon(R.drawable.ic_manual_logo));
-                tile.updateTile();
+                if(rotation == Surface.ROTATION_180){
+                    state = Tile.STATE_ACTIVE;
+                }
+                updateTileStateIcon(state, R.drawable.ic_manual_logo);
             } catch (Settings.SettingNotFoundException e) {
                 e.printStackTrace();
             }
@@ -77,23 +77,19 @@ public class ReversePortraitTileService extends TileService {
                         handler = new Handler(looper);
                         registerReceiver (mChargingStatusReceiver, filter, null, handler);
                     }
-                    tile.setState(Tile.STATE_ACTIVE);
-                    tile.setIcon(createIcon(R.drawable.ic_charge_reverse_portrait));
+                    updateTileStateIcon(Tile.STATE_ACTIVE, R.drawable.ic_charge_reverse_portrait);
                     break;
                 case Tile.STATE_ACTIVE:
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         unregisterReceiver(mChargingStatusReceiver);
                     }
                     setOrientation(Surface.ROTATION_0);
-                    tile.setState(Tile.STATE_INACTIVE);
-                    tile.setIcon(createIcon(R.drawable.ic_charge_portrait));
+                    updateTileStateIcon(Tile.STATE_INACTIVE, R.drawable.ic_charge_portrait);
                     break;
                 default:
                     break;
             }
         }
-        tile.updateTile();
-
     }
 
     private Icon createIcon(int resId){
@@ -107,6 +103,12 @@ public class ReversePortraitTileService extends TileService {
         tile.updateTile();
     }
 
+    private void updateTileStateIcon(int state, int resId){
+        Tile tile = getQsTile();
+        tile.setState(state);
+        tile.setIcon(createIcon(resId));
+        tile.updateTile();
+    }
     private void checkWritePermission(){
         if(canWrite || Settings.System.canWrite(this)) {
             canWrite = true;
@@ -131,8 +133,11 @@ public class ReversePortraitTileService extends TileService {
     }
 
     public void switchOrientation(){
+        int rotation = 0;
         try {
-            int rotation = Settings.System.getInt(getContentResolver(), Settings.System.USER_ROTATION);
+            rotation = Settings.System.getInt(getContentResolver(), Settings.System.USER_ROTATION);
+            int state = (rotation == Surface.ROTATION_180) ? Tile.STATE_INACTIVE : Tile.STATE_ACTIVE;
+            updateTileStateIcon(state, R.drawable.ic_manual_logo);
             int reverseRotation = (rotation == Surface.ROTATION_0) ? Surface.ROTATION_180 : Surface.ROTATION_0;
             Settings.System.putInt(getContentResolver(), Settings.System.USER_ROTATION, reverseRotation);
         } catch (Settings.SettingNotFoundException e) {
