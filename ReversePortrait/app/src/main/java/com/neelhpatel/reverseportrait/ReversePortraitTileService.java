@@ -19,17 +19,14 @@ import android.widget.Toast;
 
 
 public class ReversePortraitTileService extends TileService {
-    private boolean canWrite;
-    private boolean isManualMode;
-    private Icon manualIcon;
-    private static ChargingStatusReceiver chargingStatusReceiver;
+    private boolean canWrite, isManualMode;
+    private ChargingStatusReceiver mChargingStatusReceiver;
     private Handler handler;
 
     @Override
     public void onCreate() {
         super.onCreate();
         canWrite = (getQsTile() != null && getQsTile().getState() == Tile.STATE_ACTIVE);
-        manualIcon = Icon.createWithResource(this, R.drawable.ic_manual_logo);
     }
 
     @Override
@@ -39,18 +36,21 @@ public class ReversePortraitTileService extends TileService {
             try {
                 int rotation = Settings.System.getInt(getContentResolver(), Settings.System.USER_ROTATION);
                 int state = (rotation == Surface.ROTATION_0) ? Tile.STATE_INACTIVE : Tile.STATE_ACTIVE;
-                updateTileState(state);
+                Tile tile = getQsTile();
+                tile.setState(state);
+                tile.setIcon(createIcon(R.drawable.ic_manual_logo));
+                tile.updateTile();
             } catch (Settings.SettingNotFoundException e) {
                 e.printStackTrace();
             }
         } else {
-            updateTileManualIcon();
+            updateTileChargeMode();
         }
     }
 
     @Override
     public void onTileAdded() {
-        updateTile();
+        updateTileChargeMode();
     }
 
     @Override
@@ -70,23 +70,23 @@ public class ReversePortraitTileService extends TileService {
                         IntentFilter filter = new IntentFilter();
                         filter.addAction(Intent.ACTION_POWER_CONNECTED);
                         filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
-                        chargingStatusReceiver = new ChargingStatusReceiver();
+                        mChargingStatusReceiver = new ChargingStatusReceiver();
                         HandlerThread handlerThread = new HandlerThread("ChargingDetectThread");
                         handlerThread.start();
                         Looper looper = handlerThread.getLooper();
                         handler = new Handler(looper);
-                        registerReceiver (chargingStatusReceiver, filter, null, handler);
+                        registerReceiver (mChargingStatusReceiver, filter, null, handler);
                     }
                     tile.setState(Tile.STATE_ACTIVE);
-                    tile.setIcon(Icon.createWithResource(this, R.drawable.ic_charge_reverse_portrait));
+                    tile.setIcon(createIcon(R.drawable.ic_charge_reverse_portrait));
                     break;
                 case Tile.STATE_ACTIVE:
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        unregisterReceiver(chargingStatusReceiver);
+                        unregisterReceiver(mChargingStatusReceiver);
                     }
                     setOrientation(Surface.ROTATION_0);
                     tile.setState(Tile.STATE_INACTIVE);
-                    tile.setIcon(Icon.createWithResource(this, R.drawable.ic_charge_portrait));
+                    tile.setIcon(createIcon(R.drawable.ic_charge_portrait));
                     break;
                 default:
                     break;
@@ -96,28 +96,14 @@ public class ReversePortraitTileService extends TileService {
 
     }
 
-    private void updateTileState(int state) {
-        Tile tile = super.getQsTile();
-        tile.setState(state);
-        tile.updateTile();
+    private Icon createIcon(int resId){
+        return Icon.createWithResource(this, resId);
     }
 
-    private void updateTileManualIcon() {
+    private void updateTileChargeMode() {
         Tile tile = super.getQsTile();
-        tile.setIcon(manualIcon);
-        tile.updateTile();
-    }
-
-
-    private void updateTile() {
-        Tile tile = super.getQsTile();
-        int newState = (tile.getState()==Tile.STATE_ACTIVE) ? Tile.STATE_INACTIVE : Tile.STATE_ACTIVE;
-        if(!isManualMode) {
-            int resId = (newState == Tile.STATE_INACTIVE) ? R.drawable.ic_charge_reverse_portrait : R.drawable.ic_charge_portrait;
-            Icon icon = Icon.createWithResource(this, resId);
-            tile.setIcon(icon);
-        }
-        tile.setState(newState);
+        int resId = (tile.getState()==Tile.STATE_ACTIVE) ? R.drawable.ic_charge_reverse_portrait : R.drawable.ic_charge_portrait;
+        tile.setIcon(createIcon(resId));
         tile.updateTile();
     }
 
