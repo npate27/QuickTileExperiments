@@ -6,8 +6,8 @@
     <string name="pref_header_general">General</string>
     <string name="manual_mode_title">Enable manual mode reverse portrait</string>
     <string name="manual_mode_summary">Force reverse portrait instead of waiting for charging</string>
-    <string name="on_boot_title">Start service on boot</string>
-    <string name="on_boot_summary">Automatically start service on boot</string>
+    <string name="on_boot_title">Start detecting charge on boot</string>
+    <string name="on_boot_summary">Automatically detect charging status on boot</string>
     <string name="on_boot_key">on_boot_switch</string>
     <string name="manual_mode_key">manual_mode_switch</string>
     <string name="uninstall_title">Uninstall</string>

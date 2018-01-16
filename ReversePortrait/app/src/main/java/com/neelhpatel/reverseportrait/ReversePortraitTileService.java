@@ -75,12 +75,13 @@ public class ReversePortraitTileService extends TileService {
                         handlerThread.start();
                         Looper looper = handlerThread.getLooper();
                         handler = new Handler(looper);
+
                         registerReceiver (mChargingStatusReceiver, filter, null, handler);
                     }
                     updateTileStateIcon(Tile.STATE_ACTIVE, R.drawable.ic_charge_reverse_portrait);
                     break;
                 case Tile.STATE_ACTIVE:
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && mChargingStatusReceiver != null) {
                         unregisterReceiver(mChargingStatusReceiver);
                     }
                     setOrientation(Surface.ROTATION_0);
